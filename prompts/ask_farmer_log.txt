@@ -13,6 +13,7 @@ Step 1: Log the performance
     feed_intake_status: If not stated, ask about feed consumption is normal, mababa, o sobra
     health_status: If not stated, ask about general observation: e.g., “ok naman”, “may matamlay”, “may sipon”, etc.
     notes: auto-infer, take note about the summary of report
+    animals_count: If not state, ask about how many animals are we talking about based on the feed_intake_status. (e.g., "5 are eating well..")
   Optional Fields:
     shell_quality_issues: No need to ask if none, if they mention soft shells, cracks, or thin shells
 Step 2: Respond with guidance:

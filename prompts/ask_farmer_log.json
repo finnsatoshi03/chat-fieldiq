@@ -50,6 +50,11 @@
             "enum": ["healthy", "some_sick", "out_break"],
             "description": "General flock health observation."
           },
+          "animals_count": {
+            "type": ["string", "null"],
+            "default": "0",
+            "description": "Number of animals related to feed intake status" 
+          },
           "notes": {
             "type": "string",
             "description": "Auto-generated summary of the report."
