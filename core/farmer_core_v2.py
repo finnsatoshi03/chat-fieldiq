@@ -64,7 +64,7 @@ class FarmerV2:
             now_utc = datetime.now(timezone.utc)
             time_diff = now_utc - start_date
             total_hours = time_diff.total_seconds() / 3600
-            
+
             new_days_on_feed = int(total_hours // 24) + 1
             current_days_on_feed = feed_program.get("days_on_feed", 1)
 
@@ -84,9 +84,11 @@ class FarmerV2:
                     feed_program["updated_at"] = now_utc.isoformat()
                     # print(f"Successfully updated days_on_feed from {current_days_on_feed} to {new_days_on_feed} for feed program {feed_program['id']}")
                 else:
-                    print(f"Failed to update days_on_feed for feed program {feed_program['id']}")
+                    print(
+                        f"Failed to update days_on_feed for feed program {feed_program['id']}")
             else:
-                print(f"No update needed. Days on feed is correct: {current_days_on_feed}")
+                print(
+                    f"No update needed. Days on feed is correct: {current_days_on_feed}")
 
             return feed_program
 
@@ -464,18 +466,21 @@ class FarmerV2:
             recent_feed_records = []
             for log in farm_performance_logs:
                 behavior = log.get("feed_intake_status")
-                if behavior in feed_intake_summary:
-                    feed_intake_summary[behavior] += 1
+                animals_count = log.get("animals_count", 0)
+
+                if behavior in feed_intake_summary and animals_count > 0:
+                    feed_intake_summary[behavior] += animals_count
                     total_feed_behavior_logs += 1
 
                 log_date = parse(log["created_at"])
                 recent_feed_records.append({
                     "date": log_date.isoformat(),
                     "feed_intake_status": behavior,
-                    "feed_intake_kg": log.get("feed_intake_kg")
+                    "feed_intake_kg": log.get("feed_intake_kg"),
+                    "animals_count": animals_count  # Include animals count in records
                 })
 
-            # Calculate behavior score
+            # Calculate behavior score based on animals, not logs
             score_weights = {
                 "eating_well": 1.0,
                 "picky": 0.5,
@@ -483,20 +488,23 @@ class FarmerV2:
             }
 
             behavior_score = 0.0
-            if total_feed_behavior_logs > 0:
+            total_animals_counted = sum(feed_intake_summary.values())
+
+            if total_animals_counted > 0:
                 weighted_score = sum(
                     feed_intake_summary[k] * score_weights[k] for k in feed_intake_summary)
                 behavior_score = round(
-                    (weighted_score / total_feed_behavior_logs) * 100, 2)
+                    (weighted_score / total_animals_counted) * 100, 2)
 
             dominant_status = max(
-                feed_intake_summary, key=feed_intake_summary.get) if total_feed_behavior_logs > 0 else "no_data"
+                feed_intake_summary, key=feed_intake_summary.get) if total_animals_counted > 0 else "no_data"
 
             return {
                 "behavior_score": behavior_score,
                 "behavior_status": dominant_status,
-                "summary": feed_intake_summary,
+                "summary": feed_intake_summary,  # Now shows animal counts, not log counts
                 "recent_feed_records": recent_feed_records,
+                "total_animals_analyzed": total_animals_counted,  # New field for transparency
             }
 
         except GlobalException:
@@ -508,10 +516,10 @@ class FarmerV2:
     def read_health_watch(self, farmer_user_profile_id: int, filter_type: Optional[str] = None) -> Dict:
         try:
             user_exists = (self.Client.table("user_profiles")
-                        .select("id")
-                        .eq("id", farmer_user_profile_id)
-                        .limit(1)
-                        .execute())
+                           .select("id")
+                           .eq("id", farmer_user_profile_id)
+                           .limit(1)
+                           .execute())
 
             if not user_exists.data:
                 raise GlobalException(
@@ -543,10 +551,10 @@ class FarmerV2:
             health_incidents = []
             if feed_program_start_date:
                 query = (self.Client.table("health_incidents")
-                        .select("*")
-                        .eq("farmer_user_profile_id", farmer_user_profile_id)
-                        .gte("created_at", feed_program_start_date)
-                        .order("created_at", desc=True))
+                         .select("*")
+                         .eq("farmer_user_profile_id", farmer_user_profile_id)
+                         .gte("created_at", feed_program_start_date)
+                         .order("created_at", desc=True))
 
                 if feed_program_end_date:
                     query = query.lte("created_at", feed_program_end_date)
@@ -722,7 +730,7 @@ class FarmerV2:
     def __get_default_feed_intake_behavior(self) -> Dict:
         """Return default feed intake behavior structure for new users or users without active feed program"""
         return {
-            "behavior_score": 0.0,
+            "behavior_score": None,
             "behavior_status": "no_data",
             "summary": {
                 "eating_well": 0,
@@ -730,6 +738,8 @@ class FarmerV2:
                 "not_eating": 0
             },
             "recent_feed_records": [],
+            "total_animals_analyzed": 0,
+            "has_data": False,
         }
 
     def __get_default_health_watch(self) -> Dict:
@@ -818,7 +828,8 @@ class FarmerV2:
 
         # Calculate percentages based on initial flock size
         if initial_flock_size > 0:
-            mortality_percentage = round((total_mortality / initial_flock_size) * 100, 2)
+            mortality_percentage = round(
+                (total_mortality / initial_flock_size) * 100, 2)
             survival_rate = round((current_flock_size / initial_flock_size), 4)
         else:
             mortality_percentage = 0.0
