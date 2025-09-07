@@ -59,7 +59,7 @@ def chat_service(body: ChatRequest):
     return {"message": "Success", "data": handler()}    
   except Exception as e:
     print(f"An error occurred: {e}")
-    return {"message": "Something went wrong", "data": None}
+    return {"message": "Something went wrong", "data": None, "error": f"{e}"}
 
 @router.get("/monthly-sales")
 def get_monthly_sales(user_id: int = Query(...)):
