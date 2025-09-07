@@ -74,7 +74,7 @@ class SalesRep:
             
             sales_date = datetime.fromisoformat(sales_date_str.replace("Z", "+00:00"))
             month_number = sales_date.month
-            total = row.get("total", 0.0)
+            total = float(row.get("total") or 0.0)
 
             monthly_sales[month_number] += total
             total_sales += total
@@ -91,7 +91,7 @@ class SalesRep:
 
         response = (
             self.client
-            .table("sales_rep")
+            .table("sales_reps")
             .select("territory")
             .eq("user_profile_id", user_id)
             .execute()
