@@ -86,25 +86,25 @@ class PromptClassifier:
 
         # Good to have yung system prompt specific kapag need ng context.
         if category == "feed_related":
-            return "ask_farmer_general_prompts.txt"
+            return "ask_farmer_general_questions.txt"
         elif category == "incident_related":
             return "ask_farmer_health_log.txt"
         elif category == "performance_related":
             return "ask_farmer_log.txt"
         elif needs_context:
-            return "ask_farmer_general_prompts.txt"
+            return "ask_farmer_general_questions.txt"
         else:
-            return "ask_farmer_general_prompts.txt"
+            return "ask_farmer_general_questions.txt"
 
     def _get_function_name(self, category: str, needs_context: bool) -> str:
         """Get the appropriate function name for the AI call"""
         if category == "feed_related":
-            return "ask_farmer_general_prompts.json"
+            return "ask_farmer_general_questions.json"
         elif category == "incident_related":
             return "ask_farmer_health_log.json"
         elif category == "performance_related":
             return "ask_farmer_log.json"
         elif needs_context:
-            return "ask_farmer_general_prompts.json"
+            return "ask_farmer_general_questions.json"
         else:
-            return "ask_farmer_general_prompts.json"
+            return "ask_farmer_general_questions.json"
