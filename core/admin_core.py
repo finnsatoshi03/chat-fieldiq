@@ -70,8 +70,8 @@ class Admin:
         sales_by_user = defaultdict(float)
         for row in sales_data:
             user_id = row["reported_by"]
-            sales_by_user[user_id] += row.get("total", 0.0)
-
+            sales_by_user[user_id] += float(row.get("total") or 0.0)
+            
         # Final assembly
         result = []
         for u in users:
