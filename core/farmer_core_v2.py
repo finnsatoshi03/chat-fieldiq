@@ -498,11 +498,16 @@ class FarmerV2:
 
             dominant_status = max(
                 feed_intake_summary, key=feed_intake_summary.get) if total_animals_counted > 0 else "no_data"
+            
+            total_records_count = len(farm_performance_logs)
+            recent_record_date = farm_performance_logs[0]["created_at"] if farm_performance_logs else None
 
             return {
                 "behavior_score": behavior_score,
                 "behavior_status": dominant_status,
                 "summary": feed_intake_summary,  # Now shows animal counts, not log counts
+                "total_records_count": total_records_count,
+                "recent_record_date": recent_record_date,
                 "recent_feed_records": recent_feed_records,
                 "total_animals_analyzed": total_animals_counted,  # New field for transparency
             }
