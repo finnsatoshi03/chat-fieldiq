@@ -875,7 +875,15 @@ def create_health_incident_with_program(farmer_instance: FarmerV2, user_id: int,
         # by date range logic in FarmerV2 read methods
         farmer_instance.Client.table("health_incidents").insert({
             "farmer_user_profile_id": user_id,
-            **form_data,
+            "incident_date": form_data.get("incident_date"),
+            "incident_type": form_data.get("incident_type"),
+            "affected_count": form_data.get("affected_count"),
+            "symptoms": form_data.get("symptoms"),
+            "suspected_cause": form_data.get("suspected_cause"),
+            "requires_vet_visit": form_data.get("requires_vet_visit"),
+            "reported_by": user_id,
+            "actions_taken": form_data.get("actions_taken"),
+            "feed_info": form_data.get("feed_info"),
             "reported_by": user_id,
         }).execute()
 
@@ -894,7 +902,17 @@ def create_performance_log_with_program(farmer_instance: FarmerV2, user_id: int,
         farmer_instance.Client.table("farm_performance_logs").insert({
             "company_id": company_id,
             "user_profile_id": user_id,
-            **form_data
+            "average_weight_kg": form_data.get("average_weight_kg"),
+            "feed_conversion_ratio": form_data.get("feed_conversion_ratio"),
+            "mortality_count": form_data.get("mortality_count"),
+            "eggs_per_day": form_data.get("eggs_per_day"),
+            "shell_quality_issues": form_data.get("shell_quality_issues"),
+            "feed_intake_status": form_data.get("feed_intake_status"),
+            "health_status": form_data.get("health_status"),
+            "notes": form_data.get("notes"),
+            "feed_intake_kg": form_data.get("feed_intake_kg"),
+            "bags_used": form_data.get("bags_used"),
+            "animals_count": form_data.get("animals_count")
         }).execute()
 
         return True

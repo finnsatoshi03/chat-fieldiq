@@ -10,43 +10,77 @@ class SalesRep:
    
     def create_field_product_incident(self, reported_by: int, form_data: Dict, tag: str):
         self.client.table("field_product_incidents").insert({            
-            **form_data,
-            "tag": tag,
             "reported_by": reported_by,
+            "problem": form_data.get("problem"),
+            "feed_name": form_data.get("feed_name"),
+            "birds_affected": form_data.get("birds_affected"),
+            "age_of_birds": form_data.get("age_of_birds"),
+            "location": form_data.get("location"),
+            "farm_name": form_data.get("farm_name"),
+            "tag": tag,
+            "description": form_data.get("description"),
             "updated_at": "now()", }).execute()
         return None
     
     def create_dealer_incident(self, reported_by: int, form_data: Dict, tag: str):
         self.client.table("dealer_incidents").insert({            
-            **form_data,
-            "tag": tag, 
             "reported_by": reported_by,
+            "problem": form_data.get("problem"),
+            "problem_type": form_data.get("problem_type"),
+            "product_affected": form_data.get("product_affected"),
+            "dealer_name": form_data.get("dealer_name"),
+            "location": form_data.get("location"),
+            "tag": tag,
+            "description": form_data.get("description"),
             "updated_at": "now()", }).execute()
         return None
     
-    def create_sales_report(self, reported_by: int, form_data: Dict):
-        print(form_data)
+    def create_sales_report(self, reported_by: int, form_data: Dict):       
         self.client.table("sales_reports").insert({            
-            **form_data,            
-            "reported_by": reported_by,
+           "reported_by": reported_by,            
+            "sale_date": form_data.get("sale_date"), 
+            "product_sold": form_data.get("product_sold"),
+            "quantity": form_data.get("quantity"),
+            "location": form_data.get("location"),
+            "farm_name": form_data.get("farm_name"),
+            "description": form_data.get("description"),
+            "total": form_data.get("total"),            
             "updated_at": "now()", }).execute()
         return None
     
     def create_visit_report(self, reported_by: int, form_data: Dict):
         self.client.table("visit_reports").insert({            
-            **form_data,            
             "reported_by": reported_by,
+            "visit_type": form_data.get("visit_type"),
+            "visit_date": form_data.get("visit_date"),
+            "location": form_data.get("location"),
+            "farm_name": form_data.get("farm_name"),
+            "purpose": form_data.get("purpose"),
+            "observations": form_data.get("observations"),
+            "notes": form_data.get("notes"),
+            "ticket_number": form_data.get("ticket_number"),
             "updated_at": "now()", }).execute()
         return None
     
     def update_visit_report(self, ticket_number: str, reported_by: int, form_data: Dict):
+        update_data = {
+            "visit_type": form_data.get("visit_type"),
+            "visit_date": form_data.get("visit_date"),
+            "location": form_data.get("location"),
+            "farm_name": form_data.get("farm_name"),
+            "purpose": form_data.get("purpose"),
+            "observations": form_data.get("observations"),
+            "notes": form_data.get("notes"),
+            "ticket_number": form_data.get("ticket_number"),
+            "updated_at": "now()",
+        }
+
+        # remove keys where value is None or empty string
+        update_data = {k: v for k, v in update_data.items() if v not in (None, "")}
         (
             self.client
             .table("visit_reports")
-            .update({
-                **form_data,
-                "updated_at": "now()",
-            })
+            .update(update_data)
             .eq("reported_by", reported_by)
             .eq("ticket_number", ticket_number)
             .execute()
